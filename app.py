@@ -1,9 +1,16 @@
+# ========================
+# Imports
+# ========================
+
 import streamlit as st
 import json
 import os
 from datetime import datetime
 import pandas as pd
 
+# ========================
+# Data Persistence
+# ========================
 
 DATA_FILE = "data.json"
 
@@ -25,6 +32,10 @@ if "tricks" not in st.session_state:
 st.title("🛹 Kickflip Quest")
 st.write("Track skate tricks, practice progress, notes, videos, and reference links.")
 
+# ========================
+# Sidebar Navigation
+# ========================
+
 page = st.sidebar.selectbox(
     "Navigate",
     ["Home", "Add Trick", "Practice Log", "Dashboard"]
@@ -33,6 +44,9 @@ page = st.sidebar.selectbox(
 if page == "Home":
     st.header("Welcome")
     st.write("Use this app to track your skateboarding progress over time.")
+# ========================
+# Add Trick Page
+# ========================
 
 elif page == "Add Trick":
     st.header("Add a Trick")
@@ -56,6 +70,10 @@ elif page == "Add Trick":
             st.success(f"{name} saved!")
         else:
             st.warning("Please enter a trick name.")
+
+# ========================
+# Practice Log Page
+# ========================
 
 elif page == "Practice Log":
     st.header("Practice Log")
@@ -106,12 +124,15 @@ elif page == "Practice Log":
 
             save_data(st.session_state.tricks)
             st.success("Practice session saved!")
-
+# ========================
+# Dashboard
+# ========================
 elif page == "Dashboard":
     st.header("Skater Stats")
 
     if not st.session_state.tricks:
-        st.write("No tricks added yet.")
+        st.title("🛹")
+        st.info("No quests active. Add your first trick.")
     else:
         for trick_name, data in st.session_state.tricks.items():
             attempts = data["attempts"]
@@ -138,12 +159,10 @@ elif page == "Dashboard":
             st.write(f"Attempts: {attempts}")
             st.write(f"Landed: {landed}")
 
-
-
             if data["youtube_links"]:
-                st.write("Reference links:")
+                st.write("Mentor Scrolls / Reference Videos:")
                 for link in data["youtube_links"]:
-                    st.write(link)
+                    st.video(link)
 
             if "history" in data and data["history"]:
                 history_df = pd.DataFrame(data["history"])
@@ -174,7 +193,16 @@ elif page == "Dashboard":
                 for note in data["notes"]:
                     st.write(f"- {note}")
 
+            if st.button(f"Delete {trick_name}"):
+                del st.session_state.tricks[trick_name]
+                save_data(st.session_state.tricks)
+                st.rerun()
+
+
+
 
 
             st.divider()
+
+
 
